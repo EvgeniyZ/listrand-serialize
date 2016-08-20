@@ -1,109 +1,148 @@
 ﻿using System.IO;
 using NUnit.Framework;
 
-namespace SerializeListNode
-{
+namespace SerializeListNode {
     [TestFixture]
-    public class Tests
-    {
+    public class Tests {
         [Test]
-        public void TestListNodeSerialize()
-        {
-            var head = new ListNode
-            {
+        public void TestListRandSerialize() {
+            var head = new ListNode {
                 Data = "one",
             };
-            var next = new ListNode
-            {
+            var next = new ListNode {
                 Data = "two",
                 Prev = head,
                 Rand = head
             };
-            var tail = new ListNode
-            {
+            head.Next = next;
+            var third = new ListNode {
                 Data = "three",
-                Next = head,
                 Prev = next,
+                Rand = head,
+            };
+            next.Next = third;
+            var fourth = new ListNode {
+                Data = "four",
+                Prev = third
+            };
+            third.Next = fourth;
+            var fifth = new ListNode {
+                Data = "five",
+                Prev = fourth,
+            };
+            fourth.Next = fifth;
+            var tail = new ListNode {
+                Data = "six",
+                Next = head,
+                Prev = fifth,
                 Rand = next,
             };
-            head.Next = next;
+            fifth.Next = tail;
             head.Prev = tail;
             head.Rand = head;
-            next.Next = tail;
-            string path = @"d:\NodeSerialize.txt";
-            ListNode actual = null;
-            // Delete the file if it exists.
-            if (File.Exists(path))
-            {
-                File.Delete(path);
-            }
-            using (FileStream fs = File.Create(path))
-            {
-                head.Serialize(fs);
-                next.Serialize(fs);
-                tail.Serialize(fs);
-            }
-            using (FileStream fs = File.OpenRead(path))
-            {
-                using (StreamReader sr = new StreamReader(fs))
-                {
-                    fs.Seek(0, SeekOrigin.Begin);
-                    string rand;
-                    actual = ListNode.Deserialize(sr, out rand);
-                }
-            }
-            Assert.AreEqual(head.Data, actual.Data);
-        }
-
-        [Test]
-        public void TestListRandSerialize()
-        {
-            var head = new ListNode
-            {
-                Data = "one",
-            };
-            var next = new ListNode
-            {
-                Data = "two",
-                Prev = head,
-                Rand = head
-            };
-            var tail = new ListNode
-            {
-                Data = "three",
-                Next = head,
-                Prev = next,
-                Rand = next,
-            };
-            head.Next = next;
-            head.Prev = tail;
-            head.Rand = head;
-            next.Rand = head;
-            next.Next = tail;
-            var listRand = new ListRand
-            {
+            fifth.Rand = tail;
+            fourth.Rand = fourth;
+            var expected = new ListRand {
                 Head = head,
-                Count = 3,
+                Count = 6,
                 Tail = tail
             };
             string path = @"d:\RandSerialize.txt";
             ListRand actual = new ListRand();
-            // Delete the file if it exists.
-            if (File.Exists(path))
-            {
+            if (File.Exists(path)) {
                 File.Delete(path);
             }
-            using (FileStream fs = File.Create(path))
-            {
-                listRand.Serialize(fs);
+            using (FileStream fs = File.Create(path)) {
+                expected.Serialize(fs);
             }
-            using (FileStream fs = File.OpenRead(path))
-            {
+            using (FileStream fs = File.OpenRead(path)) {
                 fs.Seek(0, SeekOrigin.Begin);
                 actual = actual.Deserialize(fs);
             }
-            
-            Assert.True(false);
+            Assert.AreEqual(expected.Count, actual.Count);
+            var actualCurrent = actual.Head;
+            var expectedCurrent = expected.Head;
+            do {
+                Assert.AreEqual(expectedCurrent.Data, actualCurrent.Data);
+                actualCurrent = actualCurrent.Next;
+                expectedCurrent = expectedCurrent.Next;
+            } while (actualCurrent.Prev != actual.Tail);
+        }
+
+        [Test]
+        public void TestListRandSerializeSingleNode() {
+            var head = new ListNode {
+                Data = "one",
+            };
+            head.Next = head;
+            head.Prev = head;
+            head.Rand = head;
+            var expected = new ListRand {
+                Head = head,
+                Count = 1,
+                Tail = head
+            };
+            string path = @"d:\RandSerializeSingleNode.txt";
+            ListRand actual = new ListRand();
+            if (File.Exists(path)) {
+                File.Delete(path);
+            }
+            using (FileStream fs = File.Create(path)) {
+                expected.Serialize(fs);
+            }
+            using (FileStream fs = File.OpenRead(path)) {
+                fs.Seek(0, SeekOrigin.Begin);
+                actual = actual.Deserialize(fs);
+            }
+            Assert.AreEqual(expected.Count, actual.Count);
+            var actualCurrent = actual.Head;
+            var expectedCurrent = expected.Head;
+            do {
+                Assert.AreEqual(expectedCurrent.Data, actualCurrent.Data);
+                actualCurrent = actualCurrent.Next;
+                expectedCurrent = expectedCurrent.Next;
+            } while (actualCurrent.Prev != actual.Tail);
+        }
+
+        [Test]
+        public void TestListRandSerializeTwoNodes() {
+            var head = new ListNode {
+                Data = "one",
+            };
+            var next = new ListNode {
+                Data = "two",
+                Prev = head
+            };
+            head.Next = next;
+            head.Prev = next;
+            head.Rand = next;
+            next.Next = head;
+            next.Rand = head;
+            var expected = new ListRand {
+                Head = head,
+                Count = 2,
+                Tail = next
+            };
+            string path = @"d:\RandSerializeTwoNodes.txt";
+            ListRand actual = new ListRand();
+            if (File.Exists(path)) {
+                File.Delete(path);
+            }
+            using (FileStream fs = File.Create(path)) {
+                expected.Serialize(fs);
+            }
+            using (FileStream fs = File.OpenRead(path)) {
+                fs.Seek(0, SeekOrigin.Begin);
+                actual = actual.Deserialize(fs);
+            }
+            Assert.AreEqual(expected.Count, actual.Count);
+            var actualCurrent = actual.Head;
+            var expectedCurrent = expected.Head;
+            do {
+                Assert.AreEqual(expectedCurrent.Data, actualCurrent.Data);
+                actualCurrent = actualCurrent.Next;
+                expectedCurrent = expectedCurrent.Next;
+            } while (actualCurrent.Prev != actual.Tail);
         }
     }
 }

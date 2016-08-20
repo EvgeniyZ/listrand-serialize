@@ -1,17 +1,14 @@
 ﻿using System;
 using System.IO;
 
-namespace SerializeListNode
-{
-    public class ListNode
-    {
+namespace SerializeListNode {
+    public class ListNode {
         public ListNode Prev;
         public ListNode Rand;
         public ListNode Next;
         public string Data;
 
-        public void Serialize(FileStream s)
-        {
+        public void Serialize(FileStream s) {
             s.AddText("\n{\n");
             s.AddText("data:" + Data + "\n");
             s.AddText("prev:" + Prev.Data + "\n");
@@ -20,43 +17,23 @@ namespace SerializeListNode
             s.AddText("}");
         }
 
-        public static ListNode Deserialize(StreamReader s, out string rand)
-        {
+        public static ListNode Deserialize(StreamReader s, out string rand) {
             rand = "";
             var line = s.ReadLine();
-            if (line == "{")
-            {
+            if (line == "{") {
                 var listNode = new ListNode();
-                do
-                {
+                do {
                     line = s.ReadLine();
-                    if (line.Contains("data:"))
-                    {
+                    if (line.Contains("data:")) {
                         var delimiterPos = line.IndexOf(":", StringComparison.Ordinal) + 1;
                         var field = line.Substring(delimiterPos, line.Length - delimiterPos);
                         listNode.Data = field;
                     }
-//                    if (value.Contains("prev:"))
-//                    {
-//                        var field = value.Substring(value.IndexOf(":", StringComparison.Ordinal), value.Length);
-//                    }
-//                    if (value.Contains("next:"))
-//                    {
-//                        var field = value.Substring(value.IndexOf(":", StringComparison.Ordinal), value.Length);
-//                        listNode.Data = field;
-//                    }
-                    if (line.Contains("rand:"))
-                    {
+                    if (line.Contains("rand:")) {
                         var delimiterPos = line.IndexOf(":", StringComparison.Ordinal) + 1;
                         var field = line.Substring(delimiterPos, line.Length - delimiterPos);
                         rand = field;
                     }
-//                    if (value.Contains("position:"))
-//                    {
-//                        var delimiterPos = value.IndexOf(":", StringComparison.Ordinal) + 1;
-//                        var field = value.Substring(delimiterPos, value.Length - delimiterPos);
-//                        position = Convert.ToInt32(field);
-//                    }
                 } while (line != "}");
                 return listNode;
             }
